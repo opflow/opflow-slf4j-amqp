@@ -3,6 +3,7 @@ package org.slf4j.impl;
 import com.devebot.opflow.slf4j.client.RabbitMQSender;
 import com.devebot.opflow.slf4j.client.RabbitMQConfig;
 import com.devebot.opflow.slf4j.logger.RabbitMQLoggerFactory;
+import com.devebot.opflow.slf4j.util.EnvTool;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -15,6 +16,8 @@ import org.slf4j.spi.LoggerFactoryBinder;
  */
 public class StaticLoggerBinder implements LoggerFactoryBinder {
 
+    public static String SLF4J_AMQP_CONFIG_FILE_KEY = "opflow.slf4j.amqp.configfile";
+    
     /**
      * Declare the version of the SLF4J API this implementation is compiled against. The value of
      * this field is usually modified with each release. Per SLF4J,
@@ -48,7 +51,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
         Properties props = new Properties();
         try {
             ClassLoader classLoader = StaticLoggerBinder.class.getClassLoader();
-            props.load(classLoader.getResourceAsStream("slf4j-amqp.properties"));
+            props.load(classLoader.getResourceAsStream(EnvTool.getSystemProperty(SLF4J_AMQP_CONFIG_FILE_KEY, "slf4j-amqp.properties")));
 
             String username = props.getProperty("username");
             
