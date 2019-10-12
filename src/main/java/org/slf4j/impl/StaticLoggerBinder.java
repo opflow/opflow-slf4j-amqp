@@ -6,6 +6,7 @@ import com.devebot.opflow.slf4j.logger.RabbitMQLoggerFactory;
 import com.devebot.opflow.slf4j.util.EnvTool;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
@@ -51,7 +52,15 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
         Properties props = new Properties();
         try {
             ClassLoader classLoader = StaticLoggerBinder.class.getClassLoader();
-            props.load(classLoader.getResourceAsStream(EnvTool.getSystemProperty(SLF4J_AMQP_CONFIG_FILE_KEY, "slf4j-amqp.properties")));
+            
+            String configFile = EnvTool.getSystemProperty(SLF4J_AMQP_CONFIG_FILE_KEY, "slf4j-amqp.properties");
+            InputStream is = classLoader.getResourceAsStream(configFile);
+            
+            if (is == null) {
+                throw new IOException("can't read the configuration file [" + configFile + "]");
+            }
+            
+            props.load(is);
 
             String username = props.getProperty("username");
             
