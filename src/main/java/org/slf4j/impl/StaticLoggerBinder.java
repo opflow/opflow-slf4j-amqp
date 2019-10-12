@@ -49,6 +49,33 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
     private StaticLoggerBinder() {
         super();
 
+        Properties props = loadResourceFile();
+        
+        String username = props.getProperty("username");
+            
+        String password = props.getProperty("password");
+
+        String host = props.getProperty("host");
+
+        Integer port = 5672;
+        if (props.getProperty("port") != null) {
+            port = Integer.valueOf(props.getProperty("port"));
+        }
+
+        String virtualHost = props.getProperty("virtualHost");
+
+        String exchange = props.getProperty("exchange");
+
+        String routingKey = props.getProperty("routingKey");
+
+        RabbitMQConfig config = new RabbitMQConfig(username, password, host, port, virtualHost, exchange, routingKey);
+
+        RabbitMQSender.getInstance().setConfig(config);
+        
+        loggerFactory = new RabbitMQLoggerFactory();
+    }
+    
+    private Properties loadResourceFile() {
         Properties props = new Properties();
         try {
             ClassLoader classLoader = StaticLoggerBinder.class.getClassLoader();
@@ -61,32 +88,11 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
             }
             
             props.load(is);
-
-            String username = props.getProperty("username");
             
-            String password = props.getProperty("password");
-            
-            String host = props.getProperty("host");
-            
-            Integer port = 5672;
-            if (props.getProperty("port") != null) {
-                port = Integer.valueOf(props.getProperty("port"));
-            }
-            
-            String virtualHost = props.getProperty("virtualHost");
-            
-            String exchange = props.getProperty("exchange");
-            
-            String routingKey = props.getProperty("routingKey");
-
-            RabbitMQConfig config = new RabbitMQConfig(username, password, host, port, virtualHost, exchange, routingKey);
-
-            RabbitMQSender.getInstance().setConfig(config);
+            return props;
         } catch (IOException throwable) {
             throw new RuntimeException(throwable);
         }
-        
-        loggerFactory = new RabbitMQLoggerFactory();
     }
 
     @Override
